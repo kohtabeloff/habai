@@ -126,11 +126,13 @@
   }
   .again { font: inherit; font-size: 15px; background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; }
   .fail { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 14px; padding: 18px 20px; font-size: 15px; }
-  footer { margin-top: 44px; font-size: 13px; color: var(--muted); }
-  footer a { color: var(--muted); }
+  footer { max-width: 720px; margin: 44px auto 0; padding: 0 20px 72px; font-size: 13px; color: var(--muted); }
+  footer a { color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--line); }
+  footer a:hover { color: var(--accent); border-color: var(--accent); }
   .hidden { display: none !important; }
   @media (max-width: 560px) {
     .wrap { padding: 34px 16px 70px; }
+    footer { padding: 0 16px 56px; }
     h1 { font-size: 30px; }
     .lead { font-size: 16px; }
     .search { flex-direction: column; }
@@ -554,7 +556,7 @@
 
 <footer>
   <p>Инструмент считает по открытым данным Pinterest и ничего не собирает: ни почты, ни имени. Проверок в день ограниченное число, чтобы не мешать сайту.</p>
-  <p style="margin-top:8px">ХАБ. AI · <a href="https://t.me/hubcryptocis" target="_blank" rel="noopener">Telegram</a> · <a href="/">главная</a></p>
+  <p style="margin-top:10px">ХАБ. AI · <a href="https://t.me/hubcryptocis" target="_blank" rel="noopener">Telegram</a> · <a href="/">На главную</a></p>
 </footer>
 </body>
 </html>
