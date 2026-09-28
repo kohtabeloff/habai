@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Проверка ниши в Pinterest — бесплатно | ХАБ. AI</title>
+<meta name="description" content="Введи нишу или запрос — покажу по цифрам, сколько людей ищут в Pinterest, насколько занята выдача и какие направления внутри ниши свободны. Бесплатно, без регистрации.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://habai.ru/pinterest">
+<meta property="og:title" content="Проверка ниши в Pinterest — по цифрам">
+<meta property="og:description" content="Сколько людей ищут твою нишу, какие направления внутри неё свободны. Честный ответ с цифрами.">
+<style>
+  :root {
+    --bg: #faf9f5;
+    --card: #ffffff;
+    --ink: #111111;
+    --muted: #6e6e73;
+    --line: #eae7e1;
+    --accent: #e60023;
+    --accent-dark: #ad081b;
+    --accent-soft: #fdecee;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 56px 20px 96px; }
+  .tag {
+    display: inline-block; font-size: 13px; letter-spacing: .04em; text-transform: uppercase;
+    color: var(--accent); background: var(--accent-soft); padding: 5px 11px; border-radius: 999px;
+    margin-bottom: 20px;
+  }
+  h1 { font-size: 40px; line-height: 1.12; letter-spacing: -.02em; margin-bottom: 16px; }
+  .lead { font-size: 18px; color: var(--muted); max-width: 56ch; }
+
+  .modes { display: inline-flex; gap: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px; margin: 26px 0 14px; }
+  .modes button { font: inherit; font-size: 14px; border: 0; background: none; padding: 7px 16px; border-radius: 999px; color: var(--muted); cursor: pointer; }
+  .modes button.on { background: var(--accent); color: #fff; }
+
+  .search { margin: 6px 0 12px; display: flex; gap: 10px; }
+  .search input {
+    flex: 1; font: inherit; font-size: 17px; padding: 15px 18px; border: 1px solid var(--line);
+    border-radius: 14px; background: var(--card); color: var(--ink); outline: none;
+  }
+  .search input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(230,0,35,.1); }
+  .search button {
+    font: inherit; font-size: 17px; font-weight: 600; padding: 15px 26px; border: 0; border-radius: 14px;
+    background: var(--accent); color: #fff; cursor: pointer; white-space: nowrap;
+  }
+  .search button:hover { background: var(--accent-dark); }
+  .search button:disabled { opacity: .5; cursor: default; }
+  .hints { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .hints button {
+    font: inherit; font-size: 14px; padding: 7px 13px; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--card); color: var(--muted); cursor: pointer;
+  }
+  .hints button:hover { border-color: var(--accent); color: var(--accent); }
+  .fine { font-size: 14px; color: var(--muted); }
+  .how { margin: 26px 0 4px; display: grid; gap: 14px; }
+  .how-row { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; color: var(--muted); line-height: 1.55; }
+  .how-row b { color: var(--ink); }
+  .how-n {
+    flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft);
+    color: var(--accent-dark); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ---- экран проверки ---- */
+  .steps { margin-top: 28px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px 24px; }
+  .steps li { list-style: none; display: flex; gap: 12px; align-items: center; padding: 7px 0; color: var(--muted); font-size: 15px; }
+  .steps li .dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); flex: 0 0 auto; }
+  .steps li.on { color: var(--ink); }
+  .steps li.on .dot { border-color: var(--accent); border-top-color: transparent; animation: spin .8s linear infinite; }
+  .steps li.done { color: var(--muted); }
+  .steps li.done .dot { border-color: var(--accent); background: var(--accent); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .clock { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 14px; margin-top: 6px; }
+
+  /* ---- результат ---- */
+  .verdict {
+    background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--accent);
+    border-radius: 14px; padding: 20px 22px; margin: 28px 0 20px;
+  }
+  .verdict .mark { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .verdict h2 { font-size: 24px; letter-spacing: -.01em; margin-bottom: 6px; }
+  .verdict p { font-size: 15px; color: var(--muted); }
+  .verdict.dull { border-left-color: #cfccc6; }
+  .verdict.dull .mark { color: var(--muted); }
+
+  .nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+  .num { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
+  .num .k { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .num .v { font-size: 26px; font-weight: 600; letter-spacing: -.02em; }
+  .num .s { font-size: 13px; color: var(--muted); }
+
+  section { margin-bottom: 26px; }
+  h3 { font-size: 17px; letter-spacing: -.01em; margin-bottom: 12px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 6px 18px; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  td { padding: 12px 0; border-top: 1px solid var(--line); vertical-align: top; }
+  tr:first-child td { border-top: 0; }
+  td.r { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .bar { height: 4px; border-radius: 2px; background: var(--accent-soft); margin-top: 7px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--accent); border-radius: 2px; }
+  .dom { color: var(--muted); font-size: 13px; margin-top: 3px; }
+  .note { font-size: 14px; color: var(--muted); margin-top: 10px; }
+  .warn-inline { background: var(--accent-soft); color: var(--accent-dark); font-size: 14px; padding: 11px 14px; border-radius: 12px; margin-bottom: 18px; }
+  .pill { display: inline-block; font-size: 12px; padding: 2px 9px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-dark); white-space: nowrap; margin-left: 6px; }
+  .pill.dull { background: #f1f0ec; color: var(--muted); }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tags button {
+    font: inherit; font-size: 14px; padding: 8px 13px; border: 1px solid var(--line); border-radius: 999px;
+    background: var(--card); color: var(--ink); cursor: pointer; text-align: left;
+  }
+  .tags button:hover { border-color: var(--accent); color: var(--accent); }
+
+  .cta { margin-top: 34px; background: var(--accent); color: #fff; border-radius: 20px; padding: 28px 26px; }
+  .cta h2 { font-size: 23px; letter-spacing: -.01em; margin-bottom: 8px; }
+  .cta p { font-size: 15px; opacity: .94; margin-bottom: 18px; }
+  .cta a {
+    display: inline-block; background: #fff; color: var(--accent); text-decoration: none; font-weight: 600;
+    padding: 13px 24px; border-radius: 13px; font-size: 16px;
+  }
+  .again { font: inherit; font-size: 15px; background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; }
+  .fail { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--accent); border-radius: 14px; padding: 18px 20px; font-size: 15px; }
+  footer { margin-top: 44px; font-size: 13px; color: var(--muted); }
+  footer a { color: var(--muted); }
+  .hidden { display: none !important; }
+  @media (max-width: 560px) {
+    .wrap { padding: 34px 16px 70px; }
+    h1 { font-size: 30px; }
+    .lead { font-size: 16px; }
+    .search { flex-direction: column; }
+    .nums { grid-template-columns: 1fr; }
+    .num { padding: 14px 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ЭКРАН 1: вход -->
+  <div id="screen-input">
+    <span class="tag">Бесплатный инструмент</span>
+    <h1>Проверю твою нишу в&nbsp;Pinterest</h1>
+    <p class="lead">Напиши нишу своими словами — правильные ключи знать не нужно. Я сам найду, какими словами её ищут на Pinterest, и скажу по цифрам: сколько людей ищут, насколько занято место и куда встать легче.</p>
+
+    <div class="how">
+      <div class="how-row"><span class="how-n">1</span><div><b>Найду, как её ищут.</b> Возьму твою формулировку и подсказки самого Pinterest — это живые запросы людей, а не выдуманные ключи.</div></div>
+      <div class="how-row"><span class="how-n">2</span><div><b>Замерю место.</b> По каждому варианту посмотрю выдачу и посчитаю «планку» — сколько сохранений у обычного пина. Это и есть твой ориентир для входа.</div></div>
+      <div class="how-row"><span class="how-n">3</span><div><b>Скажу итог.</b> Какие формулировки брать, где место свободное, а куда с новым аккаунтом соваться не стоит.</div></div>
+    </div>
+
+    <div class="modes" id="modes">
+      <button type="button" data-mode="niche" class="on">Ниша целиком</button>
+      <button type="button" data-mode="query">Один запрос</button>
+    </div>
+
+    <form class="search" id="form">
+      <input id="q" type="text" placeholder="Назови нишу: свадебные приглашения, рецепты выпечки…" autocomplete="off" maxlength="60">
+      <button type="submit" id="go">Разобрать</button>
+    </form>
+
+    <div class="hints">
+      <button type="button" data-q="свадебные приглашения">свадебные приглашения</button>
+      <button type="button" data-q="рецепты выпечки">рецепты выпечки</button>
+      <button type="button" data-q="мужской стиль">мужской стиль</button>
+      <button type="button" data-q="бесплатные шрифты">бесплатные шрифты</button>
+    </div>
+    <p class="fine" id="fine">Разберу нишу на направления: где спрос есть, а планка низкая — там и место. Без регистрации, по живым данным Pinterest.</p>
+  </div>
+
+  <!-- ЭКРАН 2: проверка -->
+  <div id="screen-loading" class="hidden">
+    <h1 style="font-size:26px"><span id="what">Считаю</span> «<span id="q-shown"></span>»</h1>
+    <ol class="steps" id="steps">
+      <li data-step="0"><span class="dot"></span>Смотрю спрос по темам Pinterest</li>
+      <li data-step="1"><span class="dot"></span>Собираю выдачу по запросу</li>
+      <li data-step="2"><span class="dot"></span>Ищу направления ниши в заголовках</li>
+      <li data-step="3"><span class="dot"></span>Проверяю тесноту каждого направления</li>
+      <li data-step="4"><span class="dot"></span>Отбираю, куда встать легче</li>
+    </ol>
+    <div class="clock" id="clock">0 сек</div>
+  </div>
+
+  <!-- ЭКРАН 3: результат -->
+  <div id="screen-result" class="hidden"></div>
+
+  <div id="screen-fail" class="hidden"></div>
+
+</div>
+<script>
+  const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+    ? 'http://127.0.0.1:8030'
+    : 'https://api.habai.ru';
+  const TELEGRAM = 'https://t.me/hubcryptocis';
+
+  const $ = (id) => document.getElementById(id);
+  const MARKS = { go: 'можно', dense: 'плотно', weak: 'слабо', cold: 'пусто', unknown: 'нет данных' };
+
+  const HINTS = {
+    go:      ['Заходить можно', 'У лидеров интерес есть, а середина выдачи почти пустая — новому аккаунту есть где встать.'],
+    dense:   ['Ниша живая, но плотная', 'Сохранения есть даже у середины выдачи: место придётся отвоёвывать.'],
+    weak:    ['Спрос слабый', 'Даже у лидера мало сохранений — в этой нише пины почти не расходятся.'],
+    cold:    ['Спросу почти нет', 'По этой теме в Pinterest ищут слишком мало — пины некому показывать.'],
+    unknown: ['Выдачу собрать не удалось', 'Спрос вижу, а выдачу собрать не получилось. Попробуй другую формулировку.']
+  };
+
+  let MODE = 'niche';
+
+  function n(v) { return (v === null || v === undefined) ? '—' : v.toLocaleString('ru-RU'); }
+
+  function plural(count, one, few, many) {
+    const tail = count % 10;
+    const hundred = count % 100;
+    if (hundred >= 11 && hundred <= 14) return many;
+    if (tail === 1) return one;
+    if (tail >= 2 && tail <= 4) return few;
+    return many;
+  }
+
+  function fmtVolume(v) {
+    if (v === null || v === undefined) return '—';
+    if (v >= 1000000) return (v / 1000000).toFixed(1).replace('.0', '') + ' млн';
+    if (v >= 10000) return Math.round(v / 1000) + ' тыс.';
+    return n(v);
+  }
+
+  function show(id) {
+    for (const s of ['screen-input', 'screen-loading', 'screen-result', 'screen-fail']) {
+      $(s).classList.toggle('hidden', s !== id);
+    }
+    window.scrollTo(0, 0);
+  }
+
+  /* ---- режимы ---- */
+  for (const b of document.querySelectorAll('#modes button')) {
+    b.addEventListener('click', () => {
+      MODE = b.dataset.mode;
+      for (const x of document.querySelectorAll('#modes button')) x.classList.toggle('on', x === b);
+      if (MODE === 'niche') {
+        $('go').textContent = 'Разобрать';
+        $('q').placeholder = 'Назови нишу: свадебные приглашения, рецепты выпечки…';
+        $('fine').textContent = 'Разберу нишу на направления: где спрос есть, а планка низкая — там и место. Без регистрации, по живым данным Pinterest.';
+      } else {
+        $('go').textContent = 'Проверить';
+        $('q').placeholder = 'Что продвигаешь? Например: free svg для cricut';
+        $('fine').textContent = 'Проверю один запрос: спрос, теснота выдачи и вердикт. Без регистрации, по живым данным Pinterest.';
+      }
+      $('q').focus();
+    });
+  }
+
+  /* ---- экран проверки ---- */
+  let timer = null;
+  function startSteps() {
+    const items = [...$('steps').children];
+    items.forEach((li) => li.className = '');
+    items[0].className = 'on';
+    let at = 0;
+    const t0 = Date.now();
+    timer = setInterval(() => {
+      const now = Math.round((Date.now() - t0) / 1000);
+      $('clock').textContent = now + ' сек';
+      const want = MODE === 'niche'
+        ? (now < 3 ? 0 : now < 8 ? 1 : now < 12 ? 2 : now < 22 ? 3 : 4)
+        : (now < 3 ? 0 : now < 7 ? 1 : now < 12 ? 2 : 3);
+      if (want !== at && items[want]) {
+        items[at].className = 'done';
+        at = want;
+        items[at].className = 'on';
+      }
+    }, 250);
+  }
+  function stopSteps() { if (timer) clearInterval(timer); }
+
+  function fail(text) {
+    $('screen-fail').innerHTML = '<div class="fail">' + text + '</div>'
+      + '<p style="margin-top:18px"><button class="again" onclick="reset()">← Попробовать другое</button></p>';
+    show('screen-fail');
+  }
+
+  function reset() {
+    $('screen-result').innerHTML = '';
+    $('screen-fail').innerHTML = '';
+    show('screen-input');
+    $('q').focus();
+  }
+  window.reset = reset;
+
+  function unknownTheme(r) {
+    $('screen-fail').innerHTML =
+      '<h1 style="font-size:24px;margin-bottom:14px">Тему «' + r.query + '» Pinterest не знает</h1>'
+      + '<div class="fail">' + (r.reason || 'Назови нишу словами, как её ищут люди.') + '</div>'
+      + '<p style="margin-top:18px"><button class="again" onclick="reset()">← Попробовать другое</button></p>';
+    show('screen-fail');
+  }
+
+  function howBlock(r) {
+    const done = {};
+    for (const d of (r.directions || [])) done[d.name.toLowerCase()] = 1;
+    const vol = {};
+    for (const a of (r.all_names || [])) vol[a.name.toLowerCase()] = a.volume;
+    const hints = (r.how_they_search || []).filter(function (h) { return !done[h.toLowerCase()]; });
+    if (!hints.length) return '';
+    return '<section><h3>Ещё формулировки, которыми ищут эту нишу</h3><div class="tags">'
+      + hints.map(function (h) {
+          const v = vol[h.toLowerCase()];
+          return '<button type="button" data-q="' + h.replace(/"/g, '&quot;') + '">' + h + (v ? ' · ' + n(v) : '') + '</button>';
+        }).join('')
+      + '</div><p class="note">Это подсказки самого Pinterest к твоему запросу — живые формулировки людей, а не выдуманные ключи. Число рядом — сколько раз фразу ищут за месяц. Нажми на любую, чтобы разобрать её отдельно.</p></section>';
+  }
+
+  function readBlock() {
+    return '<section><h3>Как читать цифры</h3><div class="card" style="padding:18px;font-size:14px;line-height:1.7;color:var(--muted)">'
+      + '<p><b style="color:var(--ink)">Спрос</b> — сколько раз эту фразу набирают в поиске Pinterest за месяц. '
+      + '«Не показан» значит, что по этой фразе Pinterest цифру просто не ведёт (у узких фраз так часто) — это не «никто не ищет».</p>'
+      + '<p style="margin-top:10px"><b style="color:var(--ink)">Планка</b> — сколько сохранений у обычного пина из середины выдачи, не у звезды. '
+      + 'Это твой ориентир: 100 — заходишь спокойно, 3 000 — придётся выгрызать. Размер фразы про это не говорит ничего: бывает и крупная тема со слабой планкой, и узкая — забитая.</p>'
+      + '<p style="margin-top:10px"><b style="color:var(--ink)">Без ссылки</b> — пины, которые никуда не ведут. Их переходы можно забрать: там новый аккаунт растёт быстрее всего.</p>'
+      + '</div></section>';
+  }
+
+  function summaryBlock(r) {
+    const dirs = (r.directions || []).filter(function (d) { return d.saves_median !== null && d.saves_median !== undefined; });
+    const hasQuery = (r.saves_median !== null && r.saves_median !== undefined);
+    if (!dirs.length && !hasQuery) return '';
+
+    const parts = [];
+
+    if (hasQuery) {
+      const m = r.saves_median;
+      const state = m < 200 ? 'место почти свободное'
+        : m < 1000 ? 'место есть, но не пустое'
+        : m < 3000 ? 'место занято плотно'
+        : 'место занято очень плотно';
+      parts.push('Если целиться в саму фразу «' + r.query + '» — ' + state + ': у обычного пина там '
+        + n(m) + ' ' + plural(m, 'сохранение', 'сохранения', 'сохранений') + '.');
+    }
+
+    if (dirs.length) {
+      const easy = dirs[0];
+      const hard = dirs[dirs.length - 1];
+      let line = 'Внутри ниши самое свободное место — «' + easy.name + '»: планка ' + n(easy.saves_median) + '.';
+      if (hard !== easy) {
+        line += (hard.saves_median >= 1000)
+          ? ' Самый плотный вариант — «' + hard.name + '» с планкой ' + n(hard.saves_median) + ', с новым аккаунтом туда не стоит.'
+          : ' Самый плотный — «' + hard.name + '» (планка ' + n(hard.saves_median) + '), но и он подъёмный.';
+      }
+      parts.push(line);
+
+      const withVol = dirs.filter(function (d) { return d.volume !== null && d.volume !== undefined; });
+      if (withVol.length) {
+        parts.push('Сколько людей ищут: ' + withVol.slice(0, 4).map(function (d) { return d.name + ' — ' + n(d.volume); }).join(', ') + '.');
+      }
+    }
+
+    parts.push('С чего начать: возьми «' + (dirs.length ? dirs[0].name : r.query)
+      + '» как основную формулировку, назови по ней доски и делай заголовки и описания пинов этими же словами.');
+
+    return '<section><h3>Итог</h3><div class="card" style="padding:20px;border-left:4px solid var(--accent);border-radius:14px">'
+      + '<p style="font-size:15px;line-height:1.7">' + parts.join(' ') + '</p></div></section>';
+  }
+
+  function cta() {
+    return '<div class="cta"><h2>Это только разбор</h2>'
+      + '<p>Дальше эту работу делает плагин сам: собирает ключи по такому же разбору, пишет заголовки и описания, рисует пины и ставит их в очередь на публикацию. Тебе остаётся смотреть, что получилось.</p>'
+      + '<a href="' + TELEGRAM + '" target="_blank" rel="noopener">Расскажу подробнее в Telegram →</a></div>'
+      + '<p style="margin-top:24px"><button class="again" onclick="reset()">← Разобрать другое</button></p>';
+  }
+
+  /* ---- результат: разбор ниши ---- */
+  function renderNiche(r) {
+    if (!r.found) { unknownTheme(r); return; }
+
+    const dirs = r.directions || [];
+    const withData = dirs.filter((d) => d.saves_median !== null);
+    const easiest = withData.length ? withData[0] : null;
+    const hardest = withData.length ? withData[withData.length - 1] : null;
+
+    let html = '';
+    if (r.note) html += '<div class="warn-inline">' + r.note + '</div>';
+
+    html += '<div class="verdict"><div class="mark">разбор ниши</div>'
+      + '<h2>' + (r.matched || r.query) + '</h2>'
+      + '<p>Нашёл <b>' + r.total + '</b> ' + plural(r.total, 'формулировку', 'формулировки', 'формулировок') + ', которыми эту нишу ищут, и проверил выдачей ' + dirs.length + '. Сверху вниз — от того, куда встать легче: там планка (сохранения обычного пина) ниже.</p></div>';
+
+    html += readBlock();
+    html += howBlock(r);
+
+    if (easiest) {
+      html += '<p class="note" style="margin-bottom:24px">Легче всего встать: <b>' + easiest.name + '</b> — обычный пин набирает ' + n(easiest.saves_median) + ' ' + plural(easiest.saves_median, 'сохранение', 'сохранения', 'сохранений') + '. '
+        + (hardest && hardest !== easiest ? 'Самое плотное — <b>' + hardest.name + '</b>: там планка ' + n(hardest.saves_median) + ', придётся выгрызать.' : '')
+        + '</p>';
+    }
+
+    html += '<section><h3>Направления ниши</h3><div class="card"><table>';
+    for (const d of dirs) {
+      const dull = (d.kind === 'go') ? '' : ' dull';
+      const noVolume = (d.volume === null || d.volume === undefined);
+      html += '<tr><td>'
+        + '<div>' + d.name + '<span class="pill' + dull + '">' + (MARKS[d.kind] || '—') + '</span></div>'
+        + (noVolume ? '' : '<div class="bar"><i style="width:' + Math.max(4, Math.round(d.volume / Math.max(...dirs.map(x => x.volume || 1)) * 100)) + '%"></i></div>')
+        + '<div class="dom">' + (noVolume ? 'спрос Pinterest не показывает · ' : '')
+        + 'у лидера ' + n(d.saves_top) + ' · у обычного пина ' + n(d.saves_median)
+        + (d.without_link ? ' · без ссылки ' + d.without_link + ' из ' + d.pins_checked : '') + '</div>'
+        + '</td><td class="r">' + (noVolume ? 'не показан' : n(d.volume)) + '</td></tr>';
+    }
+    html += '</table></div>'
+      + '<p class="note">Сверху вниз — от самого свободного места к самому плотному. Смотри на «планку»: столько сохранений нужно набрать, чтобы стоять рядом с ними.</p></section>';
+
+    if (r.wide && r.wide.length) {
+      html += '<section><h3>Рядом есть темы шире твоей</h3><div class="card"><table>'
+        + r.wide.map((w) => '<tr><td>' + w.name + '</td><td class="r">' + n(w.volume) + '</td></tr>').join('')
+        + '</table></div><p class="note">Это уже чужая, зонтичная ниша — там стоят крупные сайты. Заходить в них с новым аккаунтом бессмысленно, но полезно знать, куда уплывает граф тем.</p></section>';
+    }
+
+    if (r.all_names && r.all_names.length > dirs.length) {
+      const noVol = r.all_names.some(function (a) { return a.volume === null || a.volume === undefined; });
+      html += '<section><h3>Все формулировки по нише</h3><div class="card"><table>'
+        + r.all_names.map((a) => '<tr><td>' + a.name + '</td><td class="r">' + (a.volume === null || a.volume === undefined ? 'не показан' : n(a.volume)) + '</td></tr>').join('')
+        + '</table></div><p class="note">'
+        + (noVol
+            ? '«Не показан» — это не «никто не ищет»: по этой фразе Pinterest цифру спроса просто не ведёт. Планка (сохранения обычного пина) считается по любой формулировке.'
+            : 'Спрос — сколько раз фразу набирают в поиске Pinterest за месяц.')
+        + ' Любую формулировку можно разобрать отдельно: нажми на неё выше или впиши в поле.</p></section>';
+    }
+
+    if (r.nearby && r.nearby.length) {
+      html += '<section><h3>Рядом с этой нишей ищут</h3><div class="tags">'
+        + r.nearby.map(function (x) { return '<button type="button" data-q="' + x.name.replace(/"/g, '&quot;') + '">' + x.name + ' · ' + n(x.volume) + '</button>'; }).join('')
+        + '</div><p class="note">По твоей формулировке Pinterest цифру спроса не ведёт — так бывает у узких ниш. Но рядом есть измеримые направления: люди ищут именно это. Нажми на любое, чтобы разобрать его отдельно.</p></section>';
+    }
+
+    html += summaryBlock(r);
+    html += cta();
+    $('screen-result').innerHTML = html;
+    show('screen-result');
+  }
+
+  /* ---- результат: один запрос ---- */
+  function renderQuery(r) {
+    if (!r.found) { unknownTheme(r); return; }
+
+    const kind = r.kind || 'unknown';
+    const v = HINTS[kind] || HINTS.unknown;
+    const forms = r.forms || [];
+    const maxVol = forms.length ? Math.max(...forms.map((f) => f.volume)) : 1;
+    const doms = (r.domains || []).map(([d, c]) => d + (c > 1 ? ' (' + c + ')' : '')).join(' · ');
+    const years = (r.years || []).map(([y, c]) => y + ': ' + c).join(' · ');
+    const words = (r.words || []).map(([w]) => w).slice(0, 8).join(' · ');
+
+    let html = '';
+    if (r.note) html += '<div class="warn-inline">' + r.note + '</div>';
+
+    html += '<div class="verdict' + (kind === 'go' ? '' : ' dull') + '">'
+      + '<div class="mark">' + (MARKS[kind] || 'итог') + '</div>'
+      + '<h2>' + v[0] + '</h2><p>' + v[1] + '</p></div>';
+
+    html += '<div class="nums">'
+      + '<div class="num"><div class="k">Ищут в месяц</div><div class="v">' + fmtVolume(r.theme.volume) + '</div><div class="s">'
+      + (r.theme.volume === null || r.theme.volume === undefined
+          ? 'Pinterest спрос по этой формулировке не показывает'
+          : 'запросов по теме «' + r.theme.name + '»')
+      + '</div></div>'
+      + '<div class="num"><div class="k">Собирает лидер</div><div class="v">' + n(r.saves_top) + '</div><div class="s">сохранений у топового пина</div></div>'
+      + '<div class="num"><div class="k">Собирает середина</div><div class="v">' + n(r.saves_median) + '</div><div class="s">по ' + r.pins_checked + ' пинам выдачи</div></div>'
+      + '</div>';
+
+    html += readBlock();
+    html += howBlock(r);
+
+    if (forms.length > 1) {
+      html += '<section><h3>Что ещё ищут рядом</h3><div class="card"><table>';
+      for (const f of forms) {
+        html += '<tr><td>' + f.name + '<div class="bar"><i style="width:' + Math.max(4, Math.round(f.volume / maxVol * 100)) + '%"></i></div></td>'
+          + '<td class="r">' + n(f.volume) + '</td></tr>';
+      }
+      html += '</table></div></section>';
+    }
+
+    if (doms || years || words) {
+      html += '<section><h3>Что происходит в выдаче</h3><div class="card"><table>';
+      if (doms) html += '<tr><td>Кто держит топ</td><td class="r">' + doms + '</td></tr>';
+      if (years) html += '<tr><td>Год пинов в топе</td><td class="r">' + years + '</td></tr>';
+      if (r.without_link) html += '<tr><td>Пинов без ссылки</td><td class="r">' + r.without_link + ' из ' + r.pins_checked + '</td></tr>';
+      if (words) html += '<tr><td>Частые слова в заголовках</td><td class="r">' + words + '</td></tr>';
+      html += '</table></div></section>';
+    }
+
+    if ((r.top || []).length) {
+      html += '<section><h3>Лучшие пины ниши</h3><div class="card"><table>';
+      for (const p of r.top) {
+        html += '<tr><td>' + (p.title || '(без заголовка)') + (p.domain ? '<div class="dom">' + p.domain + '</div>' : '') + '</td>'
+          + '<td class="r">' + n(p.saves) + '</td></tr>';
+      }
+      html += '</table></div></section>';
+    }
+
+    html += cta();
+    $('screen-result').innerHTML = html;
+    show('screen-result');
+  }
+
+  function render(r) {
+    // Разбор ниши без направлений (Pinterest не ведёт тему под такую
+    // формулировку) показываем как обычный разбор запроса — там уже есть
+    // выдача, планка и цифры. Отказывать не за что.
+    if (r && r.mode === 'niche' && r.directions && r.directions.length) renderNiche(r);
+    else renderQuery(r);
+
+    // Формулировки из блока «как эту нишу ищут» — кликабельные: нажал, и
+    // сервис разбирает уже её.
+    for (const b of document.querySelectorAll('#screen-result [data-q]')) {
+      b.addEventListener('click', function () {
+        $('q').value = b.dataset.q;
+        check(b.dataset.q);
+      });
+    }
+  }
+
+  /* ---- запуск ---- */
+  async function check(query) {
+    $('q-shown').textContent = query;
+    $('what').textContent = MODE === 'niche' ? 'Разбираю нишу' : 'Считаю запрос';
+    show('screen-loading');
+    startSteps();
+    const url = API + (MODE === 'niche' ? '/niche?q=' : '/check?q=') + encodeURIComponent(query);
+    try {
+      const resp = await fetch(url);
+      const data = await resp.json();
+      stopSteps();
+      if (data && data.ok === false) { fail(data.error || 'Не получилось посчитать.'); return; }
+      render(data);
+    } catch (e) {
+      stopSteps();
+      fail('Сервис не ответил. Попробуй ещё раз через минуту — или напиши мне в Telegram.');
+    }
+  }
+
+  $('form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const q = $('q').value.trim();
+    if (q.length < 2) { $('q').focus(); return; }
+    check(q);
+  });
+  for (const b of document.querySelectorAll('.hints button')) {
+    b.addEventListener('click', () => { $('q').value = b.dataset.q; check(b.dataset.q); });
+  }
+</script>
+
+<footer>
+  <p>Инструмент считает по открытым данным Pinterest и ничего не собирает: ни почты, ни имени. Проверок в день ограниченное число, чтобы не мешать сайту.</p>
+  <p style="margin-top:8px">ХАБ. AI · <a href="https://t.me/hubcryptocis" target="_blank" rel="noopener">Telegram</a> · <a href="/">главная</a></p>
+</footer>
+</body>
+</html>
