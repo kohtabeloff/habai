@@ -387,6 +387,15 @@
           parts.push('Важное: в выдаче смесь русских и зарубежных пинов. '
             + 'Ниша ни своя, ни чужая: место есть, но рядом стоят англоязычные пины.');
         }
+      } else if (r.ru_pins !== null && r.ru_pins !== undefined && r.pins_checked) {
+        // Режим одного запроса: направлений нет, судим по самой выдаче.
+        const share = r.ru_pins / r.pins_checked;
+        parts.push('Важное: русских пинов в выдаче ' + r.ru_pins + ' из ' + r.pins_checked + '. '
+          + (share <= 0.35
+            ? 'Свои авторы эту нишу почти не заняли — значит место свободное.'
+            : share >= 0.7
+              ? 'Выдачу держат русские пины — конкурировать придётся с ними, смотри на планку.'
+              : 'В выдаче смесь русских и зарубежных пинов.'));
       }
     }
 
@@ -549,6 +558,9 @@
       if (doms) html += '<tr><td>Кто держит топ</td><td class="r">' + doms + '</td></tr>';
       if (years) html += '<tr><td>Год пинов в топе</td><td class="r">' + years + '</td></tr>';
       if (r.without_link) html += '<tr><td>Пинов без ссылки</td><td class="r">' + r.without_link + ' из ' + r.pins_checked + '</td></tr>';
+      if (r.ru_query && r.ru_pins !== null && r.ru_pins !== undefined) {
+        html += '<tr><td>Русских пинов в выдаче</td><td class="r">' + r.ru_pins + ' из ' + r.pins_checked + '</td></tr>';
+      }
       if (words) html += '<tr><td>Частые слова в заголовках</td><td class="r">' + words + '</td></tr>';
       html += '</table></div></section>';
     }
