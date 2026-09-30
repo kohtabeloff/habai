@@ -419,7 +419,7 @@
 
     html += '<div class="verdict"><div class="mark">разбор ниши</div>'
       + '<h2>' + (r.matched || r.query) + '</h2>'
-      + '<p>Нашёл <b>' + r.total + '</b> ' + plural(r.total, 'формулировку', 'формулировки', 'формулировок') + ', которыми эту нишу ищут, и проверил выдачей ' + dirs.length + '. Сверху вниз — от того, куда встать легче: там планка (сохранения обычного пина) ниже.</p></div>';
+      + '<p>Нашёл <b>' + r.total + '</b> ' + plural(r.total, 'формулировку', 'формулировки', 'формулировок') + ', которыми эту нишу ищут. По ' + dirs.length + ' из них посмотрел живую выдачу Pinterest — по ним видно, сколько сохранений у обычного пина. Сверху вниз — от того, куда встать легче.</p></div>';
 
     html += readBlock();
     html += howBlock(r);
@@ -437,10 +437,12 @@
       html += '<tr><td>'
         + '<div>' + d.name + '<span class="pill' + dull + '">' + (MARKS[d.kind] || '—') + '</span></div>'
         + (noVolume ? '' : '<div class="bar"><i style="width:' + Math.max(4, Math.round(d.volume / Math.max(...dirs.map(x => x.volume || 1)) * 100)) + '%"></i></div>')
-        + '<div class="dom">' + (noVolume ? 'спрос Pinterest не показывает · ' : '')
-        + 'у лидера ' + n(d.saves_top) + ' · у обычного пина ' + n(d.saves_median)
-        + (d.without_link ? ' · без ссылки ' + d.without_link + ' из ' + d.pins_checked : '') + '</div>'
-        + '</td><td class="r">' + (noVolume ? 'не показан' : n(d.volume)) + '</td></tr>';
+        + '<div class="dom">'
+        + 'планка <b>' + n(d.saves_median) + '</b> · у лидера ' + n(d.saves_top)
+        + (d.without_link ? ' · без ссылки ' + d.without_link + ' из ' + d.pins_checked : '')
+        + '</div>'
+        + '</td><td class="r"><div class="dom" style="margin:0 0 3px">спрос</div>'
+        + (noVolume ? 'нет цифры' : n(d.volume)) + '</td></tr>';
     }
     html += '</table></div>'
       + '<p class="note">Сверху вниз — от самого свободного места к самому плотному. Смотри на «планку»: столько сохранений нужно набрать, чтобы стоять рядом с ними.</p></section>';
