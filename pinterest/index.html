@@ -438,7 +438,7 @@
         + '<div>' + d.name + '<span class="pill' + dull + '">' + (MARKS[d.kind] || '—') + '</span></div>'
         + (noVolume ? '' : '<div class="bar"><i style="width:' + Math.max(4, Math.round(d.volume / Math.max(...dirs.map(x => x.volume || 1)) * 100)) + '%"></i></div>')
         + '<div class="dom">'
-        + 'планка <b>' + n(d.saves_median) + '</b> · у лидера ' + n(d.saves_top)
+        + 'Сохранения: планка <b>' + n(d.saves_median) + '</b> · у лидера ' + n(d.saves_top)
         + (d.without_link ? ' · без ссылки ' + d.without_link + ' из ' + d.pins_checked : '')
         + '</div>'
         + '</td><td class="r"><div class="dom" style="margin:0 0 3px">спрос</div>'
