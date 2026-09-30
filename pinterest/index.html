@@ -534,11 +534,12 @@
         const title = p.title || '(без заголовка)';
         const pinUrl = p.pin_id ? 'https://www.pinterest.com/pin/' + p.pin_id + '/' : '';
         const host = p.link ? p.link.replace(/^https?:\/\//, '').split('/')[0] : '';
-        const dom = (p.domain && p.domain !== 'Uploaded by user') ? p.domain : '';
-        const where = host ? 'ведёт на ' + host : 'без ссылки';
+        const raw = (p.domain && p.domain !== 'Uploaded by user') ? p.domain : '';
+        const dom = (raw && raw !== host) ? raw + ' · ' : '';
+        const where = host ? (dom ? 'ведёт на ' + host : host) : 'без ссылки';
         html += '<tr><td>'
           + (pinUrl ? '<a href="' + pinUrl + '" target="_blank" rel="noopener">' + title + '</a>' : title)
-          + '<div class="dom">' + (dom ? dom + ' · ' : '') + where + '</div>'
+          + '<div class="dom">' + dom + where + '</div>'
           + '</td><td class="r">' + n(p.saves) + '</td></tr>';
       }
       html += '</table></div>'
