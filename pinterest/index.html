@@ -230,6 +230,27 @@
     return TELEGRAM + '?text=' + encodeURIComponent(text);
   }
 
+  /* Отметки для статистики: заход, проверка ниши, клик по кнопке.
+     Тихо и без ожидания — если счётчик не ответит, страница не пострадает. */
+  function srcKey() {
+    const p = new URLSearchParams(location.search);
+    return (p.get('utm_source') || p.get('src') || '').toLowerCase();
+  }
+
+  function markHit(event, niche) {
+    try {
+      const url = API + '/hit?event=' + event
+        + '&src=' + encodeURIComponent(srcKey())
+        + '&q=' + encodeURIComponent(niche || '');
+      if (event === 'cta' && navigator.sendBeacon) {
+        navigator.sendBeacon(url);
+        return;
+      }
+      fetch(url, { keepalive: true }).catch(function () {});
+    } catch (e) { /* статистика не должна мешать человеку */ }
+  }
+  window.markHit = markHit;
+
   const $ = (id) => document.getElementById(id);
   const MARKS = { go: 'можно', dense: 'плотно', weak: 'слабо', cold: 'пусто', unknown: 'нет данных' };
 
@@ -459,7 +480,7 @@
     return '<div class="cta"><h2>' + head + '</h2>'
       + '<p>' + lead + '</p>'
       + '<p>' + tail + '</p>'
-      + '<a href="' + tgLink(r && (r.matched || r.query)) + '" target="_blank" rel="noopener">Написать мне →</a></div>'
+      + '<a href="' + tgLink(r && (r.matched || r.query)) + '" onclick="markHit(\'cta\')" target="_blank" rel="noopener">Написать мне →</a></div>'
       + '<p style="margin-top:24px">'
       + '<button class="again" onclick="reset()">← Разобрать другое</button></p>';
   }
@@ -632,6 +653,7 @@
 
   /* ---- запуск ---- */
   async function check(query) {
+    markHit('check', query);
     $('q-shown').textContent = query;
     $('what').textContent = MODE === 'niche' ? 'Разбираю нишу' : 'Считаю запрос';
     show('screen-loading');
@@ -658,10 +680,11 @@
   for (const b of document.querySelectorAll('.hints button')) {
     b.addEventListener('click', () => { $('q').value = b.dataset.q; check(b.dataset.q); });
   }
+  markHit('view');
 </script>
 
 <footer>
-  <p>Инструмент считает по открытым данным Pinterest и ничего не собирает: ни почты, ни имени. Проверок в день ограниченное число, чтобы не мешать сайту.</p>
+  <p>Инструмент считает по открытым данным Pinterest. Личных данных не собирает: ни почты, ни имени — только обезличенный счётчик посещений. Проверок в день ограниченное число, чтобы не мешать сайту.</p>
   <p style="margin-top:10px">ХАБ. AI · <a href="https://t.me/hubcryptocis" target="_blank" rel="noopener">Telegram</a> · <a href="/">На главную</a></p>
 </footer>
 </body>
