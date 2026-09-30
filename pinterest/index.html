@@ -553,7 +553,7 @@
       html += '</table></div></section>';
     }
 
-    if (doms || years || words) {
+    if (doms || years || words || (r.ru_query && r.ru_pins !== null && r.ru_pins !== undefined)) {
       html += '<section><h3>Что происходит в выдаче</h3><div class="card"><table>';
       if (doms) html += '<tr><td>Кто держит топ</td><td class="r">' + doms + '</td></tr>';
       if (years) html += '<tr><td>Год пинов в топе</td><td class="r">' + years + '</td></tr>';
@@ -583,6 +583,7 @@
         + '<p class="note">Это пины, которые держат топ по запросу. Заголовок кликабельный — откроется сам пин в Pinterest. Справа — сохранения: сколько раз его сохранили.</p></section>';
     }
 
+    html += summaryBlock(r);
     html += cta(r);
     $('screen-result').innerHTML = html;
     show('screen-result');
