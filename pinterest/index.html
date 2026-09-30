@@ -133,6 +133,8 @@
   footer { max-width: 720px; margin: 44px auto 0; padding: 0 20px 72px; font-size: 13px; color: var(--muted); }
   footer a { color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--line); }
   footer a:hover { color: var(--accent); border-color: var(--accent); }
+  td a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
+  td a:hover { color: var(--accent); border-color: var(--accent); }
   .hidden { display: none !important; }
   @media (max-width: 560px) {
     .wrap { padding: 34px 16px 70px; }
@@ -529,10 +531,18 @@
     if ((r.top || []).length) {
       html += '<section><h3>Лучшие пины ниши</h3><div class="card"><table>';
       for (const p of r.top) {
-        html += '<tr><td>' + (p.title || '(без заголовка)') + (p.domain ? '<div class="dom">' + p.domain + '</div>' : '') + '</td>'
-          + '<td class="r">' + n(p.saves) + '</td></tr>';
+        const title = p.title || '(без заголовка)';
+        const pinUrl = p.pin_id ? 'https://www.pinterest.com/pin/' + p.pin_id + '/' : '';
+        const host = p.link ? p.link.replace(/^https?:\/\//, '').split('/')[0] : '';
+        const dom = (p.domain && p.domain !== 'Uploaded by user') ? p.domain : '';
+        const where = host ? 'ведёт на ' + host : 'без ссылки';
+        html += '<tr><td>'
+          + (pinUrl ? '<a href="' + pinUrl + '" target="_blank" rel="noopener">' + title + '</a>' : title)
+          + '<div class="dom">' + (dom ? dom + ' · ' : '') + where + '</div>'
+          + '</td><td class="r">' + n(p.saves) + '</td></tr>';
       }
-      html += '</table></div></section>';
+      html += '</table></div>'
+        + '<p class="note">Это пины, которые держат топ по запросу. Заголовок кликабельный — откроется сам пин в Pinterest. Справа — сохранения: сколько раз его сохранили.</p></section>';
     }
 
     html += cta(r);
