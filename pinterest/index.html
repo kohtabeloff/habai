@@ -366,6 +366,30 @@
       }
     }
 
+    // Кто вообще держит выдачу: свои авторы или зарубежные. Считаем только
+    // для русских запросов — в англоязычных вся выдача и так на английском.
+    if (r.ru_query) {
+      const ruDirs = dirs.filter(function (d) {
+        return d.ru_pins !== null && d.ru_pins !== undefined && d.pins_checked;
+      });
+      if (ruDirs.length) {
+        const low = ruDirs.filter(function (d) { return d.ru_pins <= 3; });
+        const high = ruDirs.filter(function (d) { return d.ru_pins >= 7; });
+        if (low.length && !high.length) {
+          parts.push('Важное: русских пинов в выдаче почти нет (' + low[0].ru_pins
+            + ' из ' + low[0].pins_checked + '), а спрос по-русски есть. '
+            + 'Значит свои авторы в эту нишу почти не заходят — место свободное.');
+        } else if (high.length && !low.length) {
+          parts.push('Важное: выдачу держат русские пины (' + high[0].ru_pins
+            + ' из ' + high[0].pins_checked + ') — тут работают свои авторы. '
+            + 'Конкурировать придётся с ними, поэтому смотри на планку.');
+        } else {
+          parts.push('Важное: в выдаче смесь русских и зарубежных пинов. '
+            + 'Ниша ни своя, ни чужая: место есть, но рядом стоят англоязычные пины.');
+        }
+      }
+    }
+
     parts.push('С чего начать: возьми «' + (dirs.length ? dirs[0].name : r.query)
       + '» как основную формулировку, назови по ней доски и делай заголовки и описания пинов этими же словами.');
 
@@ -442,6 +466,7 @@
         + '<div class="dom">'
         + 'Сохранения: планка <b>' + n(d.saves_median) + '</b> · у лидера ' + n(d.saves_top)
         + (d.without_link ? ' · без ссылки ' + d.without_link + ' из ' + d.pins_checked : '')
+        + (d.ru_pins !== null && d.ru_pins !== undefined ? ' · русских пинов ' + d.ru_pins + ' из ' + d.pins_checked : '')
         + '</div>'
         + '</td><td class="r"><div class="dom" style="margin:0 0 3px">спрос</div>'
         + (noVolume ? 'нет цифры' : n(d.volume)) + '</td></tr>';
