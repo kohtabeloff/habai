@@ -206,6 +206,30 @@
     : 'https://api.habai.ru';
   const TELEGRAM = 'https://t.me/Iamredevil';
 
+  /* Откуда человек пришёл — метка в адресе (?src=rassylka или ?utm_source=tg).
+     Она уходит в первое сообщение Павлу в личку: видно и источник, и нишу. */
+  const SOURCES = {
+    rassylka: 'из рассылки',
+    tg: 'из Telegram',
+    kanal: 'из Telegram',
+    pin: 'из Pinterest',
+    pins: 'из Pinterest'
+  };
+
+  function srcMark() {
+    const p = new URLSearchParams(location.search);
+    const key = (p.get('utm_source') || p.get('src') || '').toLowerCase();
+    return SOURCES[key] || '';
+  }
+
+  function tgLink(niche) {
+    const mark = srcMark();
+    let text = 'Пришёл с проверки ниши';
+    if (niche) text += ' — «' + niche + '»';
+    if (mark) text += ' (' + mark + ')';
+    return TELEGRAM + '?text=' + encodeURIComponent(text);
+  }
+
   const $ = (id) => document.getElementById(id);
   const MARKS = { go: 'можно', dense: 'плотно', weak: 'слабо', cold: 'пусто', unknown: 'нет данных' };
 
@@ -435,7 +459,7 @@
     return '<div class="cta"><h2>' + head + '</h2>'
       + '<p>' + lead + '</p>'
       + '<p>' + tail + '</p>'
-      + '<a href="' + TELEGRAM + '" target="_blank" rel="noopener">Написать мне →</a></div>'
+      + '<a href="' + tgLink(r && (r.matched || r.query)) + '" target="_blank" rel="noopener">Написать мне →</a></div>'
       + '<p style="margin-top:24px">'
       + '<button class="again" onclick="reset()">← Разобрать другое</button></p>';
   }
